@@ -2,12 +2,14 @@ from bs4 import BeautifulSoup as BS
 import requests
 import sys
 from datetime import datetime
+from cryptography.fernet import Fernet
 from datetime import date
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Sequence
 sys.path.insert(0, 'e:\\PycharmProjects\\')
 from addc import login
 
 Date_Str = Union[datetime, bool]
+Uncomp = Sequence[List]
 
 
 def date_conv(date1: str, time1: str) -> datetime:
@@ -50,7 +52,7 @@ def neg_bal(data1: Tuple, balance: float, rev_list1: List) -> float:
         rev_list.append(data1)
     for item in rev_list:
         a_date = date_extractor(item[2])
-        if a_date and compare_days(data1[0], a_date):
+        if a_date and compare_days(data1[0], a_date):  # type: ignore
             balance -= item[1]
     return balance
 
@@ -69,10 +71,15 @@ def url_parse(url: str) -> List[Tuple[datetime, float, str, str]]:
     """
     Parsing addiction club url
     :param url:
-    :return:
+    :return: data
     """
+    with open("key2.key", "rb") as f:
+        key = f.read()
+    ff = Fernet(key)
+    password = ff.decrypt(login["pwd"])
     with requests.Session() as sess:
-        sess.auth = (login["name"], login["pwd"])
+        # sess.auth = (login["name"], login["pwd"])
+        sess.auth = (login["name"], password.decode())
         resp = sess.get(url)
     soup = BS(resp.content, "html.parser")
     tbody = soup.find_all('tbody')
@@ -85,7 +92,7 @@ def url_parse(url: str) -> List[Tuple[datetime, float, str, str]]:
     return data
 
 
-def uncompensate(m_list: List[Tuple]) -> List:
+def uncompensate(m_list: List[Tuple[datetime, float, str, str]]) -> Uncomp:
     """
     try to find uncompensate training by MS card
     :param m_list:
@@ -97,8 +104,8 @@ def uncompensate(m_list: List[Tuple]) -> List:
         a_date = date_extractor(item[2])
         if a_date:
             for item_2 in reversed(m_list):
-                if (item_2[0].date() == a_date.date()) and (item_2[1] > 0):
-                    print("{:3d}  {:50} is compensates".format(idx+1, item[2]))
+                if (item_2[0].date() == a_date.date()) and (item_2[1] > 0): # type: ignore
+                    print("{:3d}  {:50} is compensated".format(idx+1, item[2]))
                     idx += 1
                     break
             else:
@@ -106,7 +113,6 @@ def uncompensate(m_list: List[Tuple]) -> List:
                 print("{:3d}  {:50} IS NOT COMPANSATED!!!!".format(idx+1, item[2]))
                 idx += 1
     return u_list
-
 
 
 if __name__ == "__main__":
@@ -123,13 +129,6 @@ if __name__ == "__main__":
         balance += item[1]
         if comp_list:
             hypo = neg_bal(item, balance, comp_list)
-        # a_date = date_extractor(item[2])
-        # if a_date:
-        #     print(compare_days(item[0], a_date))
-        # if item[2] == "":
-        #     hypo += item[1]
-        # elif int(item[1]) == 0:
-        #     hypo = balance
         print("{:20s} {:10.2f} {:10.2f} {:10.2f} \'{}\'".format(str(item[0]), balance, hypo, item[1], item[2]))
         comp_list.append(item)
     print("=============================")
