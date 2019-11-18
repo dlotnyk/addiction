@@ -3,8 +3,7 @@ import requests
 import sys
 from datetime import datetime
 from cryptography.fernet import Fernet
-from datetime import date
-from typing import List, Tuple, Union, Sequence
+from typing import List, Tuple, Union, Sequence, Optional
 sys.path.insert(0, 'e:\\PycharmProjects\\')
 from addc import login
 
@@ -77,19 +76,24 @@ def url_parse(url: str) -> List[Tuple[datetime, float, str, str]]:
         key = f.read()
     ff = Fernet(key)
     password = ff.decrypt(login["pwd"])
-    with requests.Session() as sess:
-        # sess.auth = (login["name"], login["pwd"])
-        sess.auth = (login["name"], password.decode())
-        resp = sess.get(url)
-    soup = BS(resp.content, "html.parser")
-    tbody = soup.find_all('tbody')
-    tr = tbody[0].find_all('tr')
-    data: List[Tuple[datetime, float, str, str]] = list()
-    for item in tr:
-        td = item.find_all('td')
-        dd = date_conv(td[0].text, td[1].text)
-        data.append((dd, float(td[2].text), td[3].text, td[4].text))
-    return data
+    try:
+        with requests.Session() as sess:
+            sess.auth = (login["name"], password.decode())
+            # sess.auth = (login["name"], "XXX")
+            resp = sess.get(url)
+    except requests.exceptions.TooManyRedirects:
+        print("===============Wrong login or a password==================")
+        raise
+    else:
+        soup = BS(resp.content, "html.parser")
+        tbody = soup.find_all('tbody')
+        tr = tbody[0].find_all('tr')
+        data: List[Tuple[datetime, float, str, str]] = list()
+        for item in tr:
+            td = item.find_all('td')
+            dd = date_conv(td[0].text, td[1].text)
+            data.append((dd, float(td[2].text), td[3].text, td[4].text))
+        return data
 
 
 def uncompensate(m_list: List[Tuple[datetime, float, str, str]]) -> Uncomp:

@@ -3,3 +3,5 @@
 .mypy_cache/
 __pycache__/
 /key2.key
+/key3.key
+/play.py

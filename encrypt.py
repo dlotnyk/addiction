@@ -1,7 +1,7 @@
 from cryptography.fernet import Fernet
-message = "mypassword".encode()
+message = "beastfromeast".encode()
 
-with open("key2.key", "rb") as f:
+with open("key3.key", "rb") as f:
     key = f.read()
 f = Fernet(key)
 encrypted = f.encrypt(message)
