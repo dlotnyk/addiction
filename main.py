@@ -114,7 +114,7 @@ def uncompensate(m_list: List[Tuple[datetime, float, str, str]]) -> Uncomp:
                     break
             else:
                 u_list.append(item[2])
-                print("{:3d}  {:50} IS NOT COMPANSATED!!!!".format(idx+1, item[2]))
+                print("{:3d}  {:50} IS NOT COMPENSATED!!!!".format(idx+1, item[2]))
                 idx += 1
     return u_list
 
@@ -136,6 +136,6 @@ if __name__ == "__main__":
         print("{:20s} {:10.2f} {:10.2f} {:10.2f} \'{}\'".format(str(item[0]), balance, hypo, item[1], item[2]))
         comp_list.append(item)
     print("=============================")
-    print("Uncompensated:")
+    print("Uncompensated trainings: ")
     print()
     u_list = uncompensate(data)
