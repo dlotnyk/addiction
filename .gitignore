@@ -5,3 +5,6 @@ __pycache__/
 /key2.key
 /key3.key
 /play.py
+/main.spec
+/build/
+/app.log
