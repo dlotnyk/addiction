@@ -7,3 +7,4 @@ __pycache__/
 /play.py
 /main.spec
 /build/
+/app.log
