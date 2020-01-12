@@ -31,12 +31,13 @@ ign_puss = "pussy"
 def log_settings():
     #  Logger definitions
     log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(funcName)s - line: %(lineno)d - %(message)s')
+    log_formatter_cons = logging.Formatter('%(message)s')
     logFile = "app.log"
     my_handler = RotatingFileHandler(logFile, mode="a", maxBytes=5*1024*1024, backupCount=2, encoding=None, delay=False)
     my_handler.setFormatter(log_formatter)
     my_handler.setLevel(logging.DEBUG)
     console_handler = logging.StreamHandler()
-    console_handler.setFormatter(log_formatter)
+    console_handler.setFormatter(log_formatter_cons)
     console_handler.setLevel(logging.INFO)
     app_log = logging.getLogger("ForksFT")
     app_log.setLevel(logging.INFO)
